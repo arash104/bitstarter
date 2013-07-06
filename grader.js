@@ -26,15 +26,24 @@ var program = require('commander');
 var cheerio = require('cheerio');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
+var URL_DEFAULT="http://pacific-dawn-2461.herokuapp.com/"
+var rest = require('restler');
 
 var assertFileExists = function(infile) {
+//    var instr = rest.get(infile).toString;
     var instr = infile.toString();
+
     if(!fs.existsSync(instr)) {
         console.log("%s does not exist. Exiting.", instr);
         process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
     }
     return instr;
 };
+
+var assertUrlExists = function(inurl) {
+   
+};
+
 
 var cheerioHtmlFile = function(htmlfile) {
     return cheerio.load(fs.readFileSync(htmlfile));
@@ -65,8 +74,12 @@ if(require.main == module) {
     program
         .option('-f, --file ', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
         .option('-c, --checks ', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
-        .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+        .option('-u, --url <url> ', 'Path to index.html')
+	.parse(process.argv);
+      rest.get(program.url).on('complete',function(result){
+      fs.writeFile("website.html",result);  
+      });
+    var checkJson = checkHtmlFile('website.html', program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
